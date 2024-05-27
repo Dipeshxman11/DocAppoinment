@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+</head>
+<body>
+    <h1>Book Appointment</h1>
+    <form id="appointmentForm">
+        <label for="patientName">Patient Name:</label>
+        <input type="text" id="patientName" name="patientName" required><br><br>
+        
+        <label for="patientContact">Patient Contact:</label>
+        <input type="text" id="patientContact" name="patientContact" required><br><br>
+        
+        <select id="doctor" name="doctor" required>
+            <option value="">Select Doctor</option>
+            <option value="new">Add Doctor</option>
+        </select>
+        <input type="text" id="newDoctorName" name="newDoctorName" placeholder="Enter new doctor's name" style="display: none;"><br><br>
+        
+        <label for="channel">Appointment Channel:</label>
+        <select id="channel" name="channel" required>
+            <option value="">Select Channel</option>
+            <option value="Phone Call">Phone Call</option>
+            <option value="In-Person Visit">In-Person Visit</option>
+            <option value="Video Call">Video Call</option>
+        </select><br><br>
+        
+        <label for="appointmentTime">Appointment Time:</label>
+        <input type="datetime-local" id="appointmentTime" name="appointmentTime" required><br><br>
+        
+        <label for="appointmentType">Appointment Type:</label>
+        <input type="text" id="appointmentType" name="appointmentType" required><br><br>
+        
+        <label for="needForDoctor">Need for Doctor:</label>
+        <textarea id="needForDoctor" name="needForDoctor" required></textarea><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Booked Appointments</h2>
+    <ul id="appointmentsList"></ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const doctorSelect = document.getElementById('doctor');
+            const newDoctorNameInput = document.getElementById('newDoctorName');
+
+            doctorSelect.addEventListener('change', () => {
+                newDoctorNameInput.style.display = doctorSelect.value === 'new' ? 'block' : 'none';
+            });
+
+            const form = document.getElementById('appointmentForm');
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                
+                let doctorId;
+                if (doctorSelect.value === 'new') {
+                    const newDoctorName = newDoctorNameInput.value.trim();
+                    if (!newDoctorName) {
+                        alert('Please enter a new doctor\'s name');
+                        return;
+                    }
+                    doctorId = newDoctorName;
+                } else {
+                    doctorId = doctorSelect.value;
+                }
+
+                const appointmentData = {
+                    patientName: form.patientName.value,
+                    contact: form.patientContact.value,
+                    doctorId: doctorId,
+                    channel: form.channel.value,
+                    appointmentTime: form.appointmentTime.value,
+                    appointmentType: form.appointmentType.value,
+                    needForDoctor: form.needForDoctor.value
+                };
+
+                axios.post('http://localhost:3000/api/appointments', appointmentData)
+                    .then(response => {
+                        alert('Appointment booked successfully!');
+                        fetchAppointments();
+                    })
+                    .catch(error => console.error('Error booking appointment:', error));
+            });
+
+            const fetchAppointments = () => {
+                axios.get('http://localhost:3000/api/appointments')
+                    .then(response => {
+                        const appointmentsList = document.getElementById('appointmentsList');
+                        appointmentsList.innerHTML = '';
+                        response.data.forEach(appointment => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `Time: ${appointment.appointmentTime}, Patient: ${appointment.patient.name}, Doctor: ${appointment.doctor.name}, Channel: ${appointment.channel}`;
+                            appointmentsList.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching appointments:', error));
+            };
+
+            fetchAppointments();
+        });
+    </script>
+</body>
+</html>
