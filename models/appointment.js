@@ -1,6 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
     const Appointment = sequelize.define('Appointment', {
-      appointmentTime: {
+      patientId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      doctorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      channel: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      appointmentTime: {  
         type: DataTypes.DATE,
         allowNull: false
       },
@@ -9,26 +21,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       needForDoctor: {
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
-      channel: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       }
     }, {});
-  
+    
     Appointment.associate = function(models) {
-      Appointment.belongsTo(models.Patient, {
-        foreignKey: 'patientId',
-        as: 'patient'
-      });
-      Appointment.belongsTo(models.Doctor, {
-        foreignKey: 'doctorId',
-        as: 'doctor'
-      });
+      Appointment.belongsTo(models.Patient, { as: 'patient', foreignKey: 'patientId' });
+      Appointment.belongsTo(models.Doctor, { as: 'doctor', foreignKey: 'doctorId' });
     };
-  
+    
     return Appointment;
   };
-  

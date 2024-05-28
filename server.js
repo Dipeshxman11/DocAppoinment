@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
+
 const db = require('./models');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
+
 
 const PORT = 3000;
 db.sequelize.sync().then(() => {
